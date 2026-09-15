@@ -126,6 +126,20 @@ RSpec.describe HiveAPI::Client do
     end
   end
 
+  describe "resources" do
+    subject(:client) { described_class.new(api_token: api_token) }
+
+    it "memoizes the return rules resource" do
+      expect(client.return_rules).to be_a(HiveAPI::ReturnRulesResource)
+      expect(client.return_rules).to be(client.return_rules)
+    end
+
+    it "memoizes the returns resource" do
+      expect(client.returns).to be_a(HiveAPI::ReturnsResource)
+      expect(client.returns).to be(client.returns)
+    end
+  end
+
   describe "adapter injection" do
     it "uses Faraday's default adapter by default" do
       expect(described_class.new(api_token: api_token).adapter).to eq(Faraday.default_adapter)

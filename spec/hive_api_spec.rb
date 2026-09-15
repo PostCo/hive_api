@@ -19,8 +19,13 @@ RSpec.describe HiveAPI do
     expect(described_class::NotFoundError).to be < described_class::Error
     expect(described_class::RateLimitError).to be < described_class::Error
     expect(described_class::ServerError).to be < described_class::Error
+    expect(described_class::ReturnRulesResource).to be < described_class::Resource
+    expect(described_class::ReturnsResource).to be < described_class::Resource
     expect(described_class::Objects).to be_a(Module)
-    expect(described_class::Objects.constants).to be_empty
+    expect(described_class::Objects::PaginationResponse).to be < described_class::Base
+    expect(described_class::Objects::ReturnListResponse).to be < described_class::Base
+    expect(described_class::Objects::ReturnResponse).to be < described_class::Base
+    expect(described_class::Objects::ReturnRulesResponse).to be < described_class::Base
   end
 
   it "does not expose global configuration" do
@@ -42,6 +47,12 @@ RSpec.describe HiveAPI do
       HiveAPI::NotFoundError
       HiveAPI::RateLimitError
       HiveAPI::ServerError
+      HiveAPI::ReturnRulesResource
+      HiveAPI::ReturnsResource
+      HiveAPI::Objects::PaginationResponse
+      HiveAPI::Objects::ReturnListResponse
+      HiveAPI::Objects::ReturnResponse
+      HiveAPI::Objects::ReturnRulesResponse
       abort "Rails loaded" if defined?(Rails)
       abort "Zeitwerk loaded" if defined?(Zeitwerk)
     RUBY

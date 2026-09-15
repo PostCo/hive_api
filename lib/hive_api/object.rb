@@ -8,7 +8,7 @@ module HiveAPI
     attr_reader :original_response
 
     def self.new(attributes)
-      return attributes.map { |item| super(item) } if attributes.is_a?(Array)
+      return attributes.map { |item| super(item) }.freeze if attributes.is_a?(Array)
 
       super
     end
@@ -16,6 +16,7 @@ module HiveAPI
     def initialize(attributes)
       @original_response = deep_freeze(attributes)
       super(to_ostruct(attributes))
+      freeze
     end
 
     def to_hash
@@ -30,18 +31,25 @@ module HiveAPI
 
     private
 
-    def to_ostruct(object)
+    def to_ostruct(object, key: nil)
       case object
       when Hash
+        object_class = nested_object_class(key)
+        return object_class.new(object) if object_class
+
         OpenStruct.new(
           object.transform_keys { |key| key.to_s.underscore }
-            .transform_values { |value| to_ostruct(value) }
-        )
+            .to_h { |nested_key, value| [nested_key, to_ostruct(value, key: nested_key)] }
+        ).freeze
       when Array
-        object.map { |value| to_ostruct(value) }
+        object.map { |value| to_ostruct(value, key: key) }.freeze
       else
-        object
+        object.respond_to?(:freeze) ? object.freeze : object
       end
+    end
+
+    def nested_object_class(_key)
+      nil
     end
 
     def deep_freeze(object)

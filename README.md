@@ -60,6 +60,42 @@ response.raw.frozen?                   # => true
 response.to_h                          # => {"return_id" => "return-123", ...}
 ```
 
+### Returns
+
+The client exposes Hive's return rules and returns without applying merchant policy or traversing
+pages automatically:
+
+```ruby
+rules = client.return_rules.get
+rules.send_back_address.postal_code
+rules.default_rules.a
+rules.sku_rules.first.sku.sku_code
+
+page = client.returns.list(
+  sales_channel_id_in: [101, 202],
+  created_at_gte: "2026-09-01T00:00:00Z",
+  limit: 50
+)
+
+page.data.each do |hive_return|
+  hive_return.order.merchant_order_id
+  hive_return.announced_items
+  hive_return.handled_items
+end
+
+hive_return = client.returns.find(id: 5555)
+```
+
+List responses expose `pagination.first_page_url`, `pagination.limit`, and
+`pagination.next_page_url`. Fetch another page explicitly when Hive provides one:
+
+```ruby
+next_page = client.returns.list_page(url: page.pagination.next_page_url)
+```
+
+`list_page` only follows URLs on the client's selected Hive environment and exact Returns path.
+All response objects are immutable and retain their deeply frozen provider payload through `raw`.
+
 ## Development
 
 ```sh
