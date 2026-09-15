@@ -17,7 +17,7 @@ RSpec.describe HiveAPI::Resource do
 
   subject(:resource) { resource_class.new(client) }
 
-  let(:client) { HiveAPI::Client.new(environment: :staging) }
+  let(:client) { HiveAPI::Client.new }
 
   it "retains its client" do
     expect(resource.client).to be(client)
@@ -70,6 +70,6 @@ RSpec.describe HiveAPI::Resource do
   end
 
   def endpoint(path)
-    "#{HiveAPI::Client::STAGING_BASE_URL}#{path}"
+    "#{HiveAPI::Client::TEST_BASE_URL}#{path}"
   end
 end

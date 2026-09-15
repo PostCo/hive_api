@@ -14,23 +14,22 @@ Then run `bundle install`.
 
 ## Usage
 
-Require the gem and select one of Hive's fixed API environments when building a client:
+Require the gem and build a client. It defaults to Hive's staging API:
 
 ```ruby
 require "hive_api"
 
-client = HiveAPI::Client.new(environment: :production)
+client = HiveAPI::Client.new
 
-# Other supported environments:
-HiveAPI::Client.new(environment: :staging)
-HiveAPI::Client.new(environment: :mock)
+# Use the production API explicitly:
+HiveAPI::Client.new(sandbox: false)
 ```
 
-The client defaults to `:production`. It does not accept a custom base URL and it does not use global configuration. Connections use bounded connect and request timeouts, defaulting to 5 and 15 seconds respectively:
+The client does not accept a custom base URL and it does not use global configuration. Connections use bounded connect and request timeouts, defaulting to 5 and 15 seconds respectively:
 
 ```ruby
 HiveAPI::Client.new(
-  environment: :staging,
+  sandbox: true,
   open_timeout: 2,
   timeout: 10
 )

@@ -4,34 +4,22 @@ require "json"
 
 RSpec.describe HiveAPI::Client do
   describe "environment selection" do
-    {
-      production: described_class::PRODUCTION_BASE_URL,
-      staging: described_class::STAGING_BASE_URL,
-      mock: described_class::MOCK_BASE_URL
-    }.each do |environment, base_url|
-      it "uses the fixed #{environment} base URL" do
-        client = described_class.new(environment: environment)
-
-        expect(client.environment).to eq(environment)
-        expect(client.base_url).to eq(base_url)
-        expect(client.connection.url_prefix.to_s).to eq(base_url)
-      end
-    end
-
-    it "defaults to production" do
+    it "defaults to the staging API" do
       client = described_class.new
 
-      expect(client.environment).to eq(:production)
-      expect(client.base_url).to eq(described_class::PRODUCTION_BASE_URL)
+      expect(client.connection.url_prefix.to_s).to eq(described_class::TEST_BASE_URL)
     end
 
-    it "accepts an environment name as a string" do
-      expect(described_class.new(environment: "staging").environment).to eq(:staging)
+    it "uses the staging API in sandbox mode" do
+      client = described_class.new(sandbox: true)
+
+      expect(client.connection.url_prefix.to_s).to eq(described_class::TEST_BASE_URL)
     end
 
-    it "rejects any environment outside the fixed set" do
-      expect { described_class.new(environment: "https://example.test") }
-        .to raise_error(ArgumentError, /production, staging, mock/)
+    it "uses the production API outside sandbox mode" do
+      client = described_class.new(sandbox: false)
+
+      expect(client.connection.url_prefix.to_s).to eq(described_class::LIVE_BASE_URL)
     end
 
     it "does not accept a caller-supplied base URL" do
@@ -109,6 +97,6 @@ RSpec.describe HiveAPI::Client do
   end
 
   def endpoint(path)
-    "#{described_class::PRODUCTION_BASE_URL}#{path}"
+    "#{described_class::TEST_BASE_URL}#{path}"
   end
 end
