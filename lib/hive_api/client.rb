@@ -35,6 +35,14 @@ module HiveAPI
       end
     end
 
+    def return_rules
+      @return_rules ||= ReturnRulesResource.new(self)
+    end
+
+    def returns
+      @returns ||= ReturnsResource.new(self)
+    end
+
     private
 
     def validate_api_token!(api_token)

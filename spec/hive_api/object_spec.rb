@@ -37,6 +37,16 @@ RSpec.describe HiveAPI::Base do
       expect(object.raw.fetch("lineItems").first).to be_frozen
       expect(object.raw.fetch("returnId")).to be_frozen
     end
+
+    it "makes the mapped response tree immutable" do
+      expect(object).to be_frozen
+      expect(object.send_back_address).to be_frozen
+      expect(object.line_items).to be_frozen
+      expect(object.line_items.first).to be_frozen
+
+      expect { object.return_id = "changed" }.to raise_error(FrozenError)
+      expect { object.line_items << OpenStruct.new }.to raise_error(FrozenError)
+    end
   end
 
   describe "hash conversion" do

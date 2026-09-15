@@ -9,3 +9,5 @@
 - Shared resource and response-object foundations.
 - Merchant-scoped bearer authentication and typed, credential-safe API errors.
 - Hive rate-limit metadata and transport-error wrapping without automatic retries or logging.
+- Return rules, paginated return listing, safe explicit page traversal, and individual return retrieval.
+- Immutable, dedicated return response objects with deeply frozen provider evidence.
