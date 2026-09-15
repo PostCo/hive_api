@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["PostCo"]
   spec.email = ["engineering@postco.co"]
 
-  spec.summary = "Rails-independent Ruby client for the Hive Merchant API"
-  spec.description = "A small Ruby client foundation for integrating with Hive without depending on Rails."
+  spec.summary = "Rails-independent Ruby client for Hive Returns"
+  spec.description = "Retrieve Hive return rules, list and paginate returns, and fetch individual returns without depending on Rails."
   spec.homepage = "https://github.com/PostCo/hive_api"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.0"

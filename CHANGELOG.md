@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-15
+
 ### Added
 
 - Rails-independent Hive API client foundation with fixed production and staging environments, defaulting safely to staging.
@@ -11,3 +13,7 @@
 - Hive rate-limit metadata and transport-error wrapping without automatic retries or logging.
 - Return rules, paginated return listing, safe explicit page traversal, and individual return retrieval.
 - Immutable, dedicated return response objects with deeply frozen provider evidence.
+
+### Out of scope
+
+- Webhook handling, automatic polling, retries, caching, persistence, and business workflows remain caller-owned.
