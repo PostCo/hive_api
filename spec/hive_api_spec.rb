@@ -1,0 +1,49 @@
+# frozen_string_literal: true
+
+require "open3"
+require "rbconfig"
+
+RSpec.describe HiveAPI do
+  it "has the scaffold version" do
+    expect(described_class::VERSION).to eq("0.1.0")
+  end
+
+  it "autoloads the public foundation" do
+    expect(described_class::Client).to be_a(Class)
+    expect(described_class::Base).to be < OpenStruct
+    expect(described_class::Resource).to be_a(Class)
+    expect(described_class::Error).to be < StandardError
+    expect(described_class::APIError).to be < described_class::Error
+    expect(described_class::Objects).to be_a(Module)
+    expect(described_class::Objects.constants).to be_empty
+  end
+
+  it "does not expose global configuration" do
+    expect(described_class).not_to respond_to(:configure)
+    expect(described_class).not_to respond_to(:configuration)
+    expect(described_class.const_defined?(:Configuration, false)).to be(false)
+  end
+
+  it "loads in a clean Ruby process without Rails or Zeitwerk" do
+    script = <<~RUBY
+      require "hive_api"
+      HiveAPI::Client
+      HiveAPI::Base
+      HiveAPI::Resource
+      HiveAPI::Error
+      HiveAPI::APIError
+      abort "Rails loaded" if defined?(Rails)
+      abort "Zeitwerk loaded" if defined?(Zeitwerk)
+    RUBY
+
+    _stdout, stderr, status = Open3.capture3(
+      {"BUNDLE_GEMFILE" => nil, "RUBYOPT" => nil},
+      RbConfig.ruby,
+      "-I#{File.expand_path("../lib", __dir__)}",
+      "-e",
+      script
+    )
+
+    expect(status).to be_success, stderr
+  end
+end
