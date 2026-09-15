@@ -1,75 +1,80 @@
 ## Releasing `hive_api`
 
-This project follows the Exporto and Torque convention and uses Bundler's built-in gem release
-tasks. Releases must be made from a reviewed commit on `main`.
+This project uses Bundler's built-in gem release tasks.
 
 ### Prerequisites
 
 - You have push access to the GitHub repository.
-- You have a RubyGems.org account with MFA enabled and an API key configured locally by running
-  `gem signin`.
-- Your local `main` branch is clean and up to date with `origin/main`.
-- You have a staging-only Hive token available through `HIVE_API_TOKEN`.
-
-Never put a token on a command line that will be saved to shell history. Do not add credentials,
-tokens, customer payloads, smoke output, or environment-specific secrets to this repository.
+- You have a RubyGems.org account with MFA enabled and an API key configured locally by running `gem signin`.
+- Your local `main` branch is up to date with `origin/main`.
 
 ### Prepare the release
 
-1. Choose the next version following SemVer and update `HiveAPI::VERSION` in
-   `lib/hive_api/version.rb`.
-2. Move the relevant entries from `Unreleased` into a dated section in `CHANGELOG.md` and update
-   `README.md` when the public API changes.
-3. Confirm the public boundary remains intentional: webhook handling, automatic polling, retries,
-   caching, persistence, and business workflows are caller-owned.
-4. Commit the release preparation and have it reviewed and merged.
+1. **Decide the new version**
+   - Choose the next version number (for example, `0.1.1` or `0.2.0`) following SemVer.
 
-### Verify the release candidate
+2. **Update the version constant**
+   - Edit `lib/hive_api/version.rb` and update:
+     - `HiveAPI::VERSION = "x.y.z"`
 
-From a clean, up-to-date `main` checkout, run the complete local suite:
+3. **Update docs**
+   - Update `CHANGELOG.md` with a new section for the version and a short summary of changes.
+   - Optionally update `README.md` if usage or the public API changed.
+   - Keep the ownership boundary explicit: webhook handling, automatic polling, retries, caching,
+     persistence, and business workflows remain caller responsibilities.
 
-```bash
-bundle exec rake
-bundle exec ruby -Ilib -e 'require "hive_api"; HiveAPI::Client; HiveAPI::Objects::ReturnResponse; abort "Rails loaded" if defined?(Rails); abort "Zeitwerk loaded" if defined?(Zeitwerk)'
-gem build hive_api.gemspec
-gem specification --local hive_api-0.1.0.gem files
-```
+4. **Commit the changes**
 
-Inspect the final command's output. The gem should contain only `lib/`, `README.md`, `CHANGELOG.md`,
-and `LICENSE.txt`; it must not contain `.env` files, credentials, tokens, customer payloads, specs,
-or the contract smoke script.
+   ```bash
+   git status
+   git add lib/hive_api/version.rb CHANGELOG.md README.md
+   git commit -m "Bump version to vX.Y.Z"
+   ```
 
-Then run the read-only staging contract check without echoing or retaining the token:
+   Replace `X.Y.Z` with the new version number.
 
-```bash
-read -s HIVE_API_TOKEN
-export HIVE_API_TOKEN
-bundle exec rake contract:smoke
-unset HIVE_API_TOKEN
-```
+5. **Ensure you are on `main` and pushed**
 
-The check validates `GET /return_rules` and `GET /returns`. If staging contains a return, it also
-validates `GET /returns/{id}` using the first returned ID. If staging has no returns, record the
-reported no-data limitation in the Tapir staging milestone before continuing.
+   ```bash
+   git switch main
+   git pull origin main
+   git push origin main
+   ```
 
-### Publish
+6. **Verify the staging contract**
+   - With a staging token supplied through `HIVE_API_TOKEN`, construct a client with
+     `sandbox: true` and call `client.return_rules.get` and `client.returns.list(limit: 1)`.
+   - When the list contains a return, call `client.returns.find(id: page.data.first.id)`.
+   - When the list is empty, record that limitation in the Tapir staging milestone.
+   - Never commit credentials, tokens, customer payloads, smoke output, or environment-specific
+     secrets.
 
-Run Bundler's release task:
+7. **Run the release**
 
-```bash
-bundle exec rake release
-```
+   Use Bundler's release task, which runs tests and lint first:
 
-The task first runs `spec` and `standard`, then builds the gem, creates and pushes the version tag,
-and publishes to RubyGems using the locally configured credentials. Complete the RubyGems MFA
-prompt when requested. Do not create the version tag manually.
+   ```bash
+   bundle exec rake release
+   ```
 
-### Verify and record
+   This will:
 
-- Confirm the immutable `vX.Y.Z` tag points to the reviewed `main` commit on GitHub.
-- Confirm the version is available at `https://rubygems.org/gems/hive_api`.
-- Record the published version and tag in the Tapir integration milestone for dependency pinning.
-- Leave the Tapir dependency unchanged here; consuming and pinning the gem is a separate milestone.
+   - Run `rake spec` and `rake standard`.
+   - Build the gem from `hive_api.gemspec`.
+   - Create a git tag `vX.Y.Z` based on `HiveAPI::VERSION`.
+   - Push the tag to `origin`.
+   - Push the gem to RubyGems using your configured credentials and require MFA.
 
-If the release task fails, resolve the failure before rerunning it. Before retrying, check whether
-the tag or gem version was already published so an immutable release is not recreated inconsistently.
+8. **Verify the release**
+
+   - Check the tag on GitHub (for example, `vX.Y.Z`).
+   - Check the gem page on RubyGems: `https://rubygems.org/gems/hive_api`.
+   - Record the published version and tag in the Tapir integration milestone for dependency pinning.
+
+### Notes
+
+- If `bundle exec rake release` fails at any step, fix the issue and rerun the command.
+- Do not manually create tags for versions that have not been released through this process; let
+  `rake release` handle tagging.
+- Do not add or update the Tapir dependency in this release; consuming and pinning `hive_api` is a
+  separate integration milestone.

@@ -4,7 +4,7 @@ require "open3"
 require "rbconfig"
 
 RSpec.describe HiveAPI do
-  it "has the initial release version" do
+  it "has the scaffold version" do
     expect(described_class::VERSION).to eq("0.1.0")
   end
 

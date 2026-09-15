@@ -1,6 +1,6 @@
 # HiveAPI
 
-Rails-independent Ruby client foundation for the [Hive Merchant API](https://developers.hive.app/).
+Rails-independent Ruby client for the [Hive Merchant API](https://developers.hive.app/).
 
 ## Installation
 
@@ -151,13 +151,10 @@ how to traverse subsequent pages; the gem never retries or polls automatically.
 
 ```sh
 bundle install
-bundle exec rake
-bundle exec rake contract:smoke
+bundle exec rspec
+bundle exec standardrb
 gem build hive_api.gemspec
 ```
-
-The contract smoke task makes read-only requests against staging. See [RELEASING.md](RELEASING.md)
-for the credential-safe release workflow.
 
 ## License
 
