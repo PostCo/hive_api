@@ -19,23 +19,30 @@ Require the gem and build a client. It defaults to Hive's staging API:
 ```ruby
 require "hive_api"
 
-client = HiveAPI::Client.new
+client = HiveAPI::Client.new(api_token: ENV.fetch("HIVE_API_TOKEN"))
 
 # Use the production API explicitly:
-HiveAPI::Client.new(sandbox: false)
+HiveAPI::Client.new(api_token: ENV.fetch("HIVE_API_TOKEN"), sandbox: false)
 ```
 
 The client does not accept a custom base URL and it does not use global configuration. Connections use bounded connect and request timeouts, defaulting to 5 and 15 seconds respectively:
 
 ```ruby
 HiveAPI::Client.new(
+  api_token: ENV.fetch("HIVE_API_TOKEN"),
   sandbox: true,
   open_timeout: 2,
   timeout: 10
 )
 ```
 
-Authentication and concrete Hive resources will be added in subsequent releases.
+Every request sends the API token as a bearer credential in the `Authorization` header. The gem
+does not acquire, refresh, rotate, log, or retry credentials or requests automatically.
+
+Unsuccessful responses raise a typed `HiveAPI::Error` subclass. Errors expose the HTTP status and
+Hive's `X-Rate-Limit-Used`, `X-Rate-Limit-Max`, and `Retry-After` metadata when present. Transport
+failures are wrapped in `HiveAPI::APIError` with the original Faraday exception retained as the
+cause.
 
 ### Response objects
 

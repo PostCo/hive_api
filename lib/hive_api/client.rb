@@ -9,10 +9,13 @@ module HiveAPI
     DEFAULT_OPEN_TIMEOUT = 5
     DEFAULT_TIMEOUT = 15
 
-    attr_reader :adapter, :open_timeout, :timeout
+    attr_reader :adapter, :api_token, :open_timeout, :timeout
 
-    def initialize(sandbox: true, adapter: Faraday.default_adapter,
+    def initialize(api_token:, sandbox: true, adapter: Faraday.default_adapter,
       open_timeout: DEFAULT_OPEN_TIMEOUT, timeout: DEFAULT_TIMEOUT)
+      validate_api_token!(api_token)
+
+      @api_token = api_token
       @sandbox = sandbox
       @adapter = adapter
       @open_timeout = open_timeout
@@ -24,6 +27,7 @@ module HiveAPI
         connection.url_prefix = sandbox? ? TEST_BASE_URL : LIVE_BASE_URL
         connection.options.open_timeout = open_timeout
         connection.options.timeout = timeout
+        connection.headers["Authorization"] = "Bearer #{api_token}"
         connection.headers["Accept"] = "application/json"
         connection.request :json
         connection.response :json, content_type: /\bjson/
@@ -32,6 +36,12 @@ module HiveAPI
     end
 
     private
+
+    def validate_api_token!(api_token)
+      return if api_token.is_a?(String) && !api_token.strip.empty?
+
+      raise ArgumentError, "api_token must be a non-empty String"
+    end
 
     def sandbox?
       @sandbox

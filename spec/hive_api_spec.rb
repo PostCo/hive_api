@@ -14,6 +14,11 @@ RSpec.describe HiveAPI do
     expect(described_class::Resource).to be_a(Class)
     expect(described_class::Error).to be < StandardError
     expect(described_class::APIError).to be < described_class::Error
+    expect(described_class::AuthenticationError).to be < described_class::Error
+    expect(described_class::ValidationError).to be < described_class::Error
+    expect(described_class::NotFoundError).to be < described_class::Error
+    expect(described_class::RateLimitError).to be < described_class::Error
+    expect(described_class::ServerError).to be < described_class::Error
     expect(described_class::Objects).to be_a(Module)
     expect(described_class::Objects.constants).to be_empty
   end
@@ -32,6 +37,11 @@ RSpec.describe HiveAPI do
       HiveAPI::Resource
       HiveAPI::Error
       HiveAPI::APIError
+      HiveAPI::AuthenticationError
+      HiveAPI::ValidationError
+      HiveAPI::NotFoundError
+      HiveAPI::RateLimitError
+      HiveAPI::ServerError
       abort "Rails loaded" if defined?(Rails)
       abort "Zeitwerk loaded" if defined?(Zeitwerk)
     RUBY
